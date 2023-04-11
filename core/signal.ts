@@ -1,8 +1,6 @@
 const signal = <A>(input: A) => {
 	const bind = <T>(obj: T, k: keyof T, fn = () => prox.value) => {
-		const len = bound.push([obj, k, fn]);
-
-		updateIdx(len - 1);
+		bound.push([obj, k, fn]);
 	};
 
 	const state = {
@@ -16,7 +14,6 @@ const signal = <A>(input: A) => {
 	const prox = new Proxy(state, {
 		get(target, p) {
 			if (p === "toString" || p === "bind") return target[p];
-			// BIND THE VALUE TO WHATEVER THE CALLER IS
 
 			return target.value;
 		},

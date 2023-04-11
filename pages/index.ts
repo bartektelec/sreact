@@ -7,3 +7,6 @@ count.bind(document.querySelector("#abc"), "innerHTML");
 document.querySelector("#btn").onclick = () => {
 	count.value++;
 };
+document.querySelector("#btn-dec").onclick = () => {
+	count.value--;
+};

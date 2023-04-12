@@ -1,20 +1,20 @@
-import { signal } from '../core/signal';
+import { signal, derive } from '../core/signal';
 import { hydrate } from '../core/hydrate';
 
 const count = signal(1);
 const name = signal('blue');
-const divStyle = signal('');
 const size = signal(17);
-name.bind(
-	divStyle,
-	'value',
-	() => `color: ${name.value}; font-size: ${size.value}px`
+
+const divStyle = derive(
+	[name, size],
+	([n, s]) => `color: ${n}; font-size: ${s}px`
 );
-size.bind(
-	divStyle,
-	'value',
-	() => `color: ${name.value}; font-size: ${size.value}px`
-);
+
+const divText = derive(name, (n) => (n === 'hey' ? 'What up' : n));
+
+const doubled = derive(count, (n) => n * 2);
+const dd = derive(doubled, (d) => d * 2);
+const doubledDoubledText = derive([dd, name], ([c, t]) => `${c} of ${t}`);
 
 const incCounter = () => {
 	count.value += 5;
@@ -24,8 +24,8 @@ const decCounter = () => {
 	count.value -= 5;
 };
 
-const setFixed = () => {
-	count.value = 50;
+const rand = () => {
+	count.value = Math.floor(Math.random() * 100);
 };
 
 const handleType = (e) => {
@@ -45,11 +45,14 @@ hydrate({
 	count,
 	name,
 	size,
+	divText,
 	handleSize,
+	doubled,
 	divStyle,
+	doubledDoubledText,
 	incCounter,
 	reset,
 	decCounter,
 	handleType,
-	setFixed,
+	rand,
 });

@@ -1,3 +1,5 @@
+// @ts-nocheck just dont
+
 const hydrate = (model: Record<string, unknown> = {}) => {
 	const nodes = [...document.body.children];
 

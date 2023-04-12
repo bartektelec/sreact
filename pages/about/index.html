@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<link rel="icon" type="image/svg+xml" href="/vite.svg" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Vite + TS</title>
+	</head>
+	<body>
+		<a href="/">go to home</a>
+
+		<div>{{ slide }}</div>
+		<input type="range" min="0" max="50" @input="onSlide" :value="slide" />
+		<input type="number" min="0" max="50" @input="onSlide" :value="slide" />
+
+		<div>{{count}}</div>
+		<div>{{ dbl }}</div>
+		<div>{{ dbldbl }}</div>
+		<button @click="reset">reset counters</button>
+		<div>{{color}}</div>
+		<input type="color" on:input="onPick" :value="color" />
+	</body>
+	<script src="./index.ts" defer type="module"></script>
+</html>

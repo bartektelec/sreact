@@ -1,6 +1,7 @@
 import { signal, derive } from '../core/signal';
 import { hydrate } from '../core/hydrate';
 
+const secret = 123;
 const count = signal(1);
 const name = signal('blue');
 const size = signal(17);
@@ -47,6 +48,7 @@ hydrate({
 	size,
 	divText,
 	handleSize,
+	secret,
 	doubled,
 	divStyle,
 	doubledDoubledText,

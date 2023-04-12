@@ -1,6 +1,19 @@
 // @ts-nocheck just dont
 
+const redir = () => {
+	const path = location.pathname;
+	if (!path || path === '/') return;
+
+	if (path.match(/\.\w+$/i)) {
+		return;
+	}
+
+	location.replace(path + '/index.html');
+};
+
 const hydrate = (model: Record<string, unknown> = {}) => {
+	redir();
+
 	const nodes = [...document.body.children];
 
 	for (let i = 0; i < nodes.length; i++) {
@@ -44,7 +57,7 @@ const hydrate = (model: Record<string, unknown> = {}) => {
 		for (let [att, state] of bound) {
 			const s = model[state];
 			// FIXME add typeguard
-			if (s && 'bind' in s && 'value' in s) {
+			if (s && typeof s === 'object' && 'bind' in s && 'value' in s) {
 				s.bind(element, att);
 			} else {
 				element.setAttribute(att, s ?? state);
@@ -56,7 +69,6 @@ const hydrate = (model: Record<string, unknown> = {}) => {
 
 		for (let word of raw.split(' ')) {
 			if (word.startsWith('{{')) interpolate = true;
-			if (word.endsWith('}}')) interpolate = false;
 
 			if (interpolate) {
 				const w = word.replace('{{', '').replace('}}', '');
@@ -66,14 +78,15 @@ const hydrate = (model: Record<string, unknown> = {}) => {
 				if (s && 'bind' in s && 'value' in s) {
 					const before = /\{{2}\s*/;
 					const after = /\s*\}{2}/;
-					const reg = new RegExp(before.source + word + after.source, 'g');
+					const reg = new RegExp(before.source + w + after.source, 'g');
 
-					console.log(reg);
 					s.bind(element, 'textContent', () => raw?.replace(reg, s.toString()));
 				} else {
 					element.textContent = raw?.replace(word, w);
 				}
 			}
+
+			if (word.endsWith('}}')) interpolate = false;
 		}
 	}
 };

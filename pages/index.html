@@ -7,9 +7,13 @@
 		<title>Vite + TS</title>
 	</head>
 	<body>
-		<nav id="abc"></nav>
-		<button id="btn">inc</button>
-		<button id="btn-dec">dec</button>
+		<nav id="abc">{{ count }}</nav>
+		<button @click="incCounter" :class="count">inc</button>
+		<button @click="setFixed">50</button>
+		<button @click="decCounter">dec</button>
+		<div>{{ name }}</div>
+		<input type="text" @input="handleType" :value="name" />
+		<nav>{{ count }}</nav>
 	</body>
 	<script src="./index.ts" type="module"></script>
 </html>

@@ -1,11 +1,12 @@
 const signal = <A>(input: A) => {
-	const bind = <T>(obj: T, k: keyof T, fn = () => prox.value) => {
+	const bind = <T>(obj: T, k: keyof T, fn = (x: typeof prox) => x.value) => {
 		bound.push([obj, k, fn]);
 	};
 
 	const state = {
 		value: input,
-		toString: () => JSON.stringify(prox.value),
+		toString: () =>
+			prox.value.toString ? prox.value.toString() : JSON.stringify(prox.value),
 		bind,
 	};
 
@@ -13,7 +14,7 @@ const signal = <A>(input: A) => {
 
 	const prox = new Proxy(state, {
 		get(target, p) {
-			if (p === "toString" || p === "bind") return target[p];
+			if (p === 'toString' || p === 'bind') return target[p];
 
 			return target.value;
 		},
@@ -35,8 +36,11 @@ const signal = <A>(input: A) => {
 		if (bound.length <= idx) return;
 
 		const [t, k, fn] = bound[idx];
-
-		(t as any)[k] = fn();
+		if (k in t) {
+			(t as any)[k] = fn(prox);
+		} else if ('setAttribute' in t) {
+			t.setAttribute(k, fn(prox));
+		}
 	};
 
 	return prox;

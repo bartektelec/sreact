@@ -1,15 +1,24 @@
-import { signal } from "../core/signal";
-import { html } from "../core/component";
+import { signal } from '../core/signal';
+import { html } from '../core/component';
+import { hydrate } from '../core/hydrate';
 
 const count = signal(1);
+const name = signal('Hello world');
 
-count.bind(document.querySelector("#abc"), "innerHTML");
-
-document.querySelector("#btn").onclick = () => {
-	count.value++;
-};
-document.querySelector("#btn-dec").onclick = () => {
-	count.value--;
+const incCounter = () => {
+	count.value += 5;
 };
 
-html` <div onclick=${count} class=${20}>hello ${count} ${"peoples"}</div>`;
+const decCounter = () => {
+	count.value -= 5;
+};
+
+const setFixed = () => {
+	count.value = 50;
+};
+
+const handleType = (e) => {
+	name.value = e.target.value;
+};
+
+hydrate({ incCounter, count, decCounter, handleType, name, setFixed });

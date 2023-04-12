@@ -28,13 +28,9 @@ const html = (strings: string[], ...vars) => {
 			out += ` ${data} `; // generate uuid
 
 			const prop = strings[i].replace("=", "").split(" ");
-			console.log(prop);
 			state.bind(document.querySelector(data), prop[prop.length - 1]);
-			// console.log(strings[i]);
-			// console.log(state);
-			console.log("bind signal");
+
 			out += strings[i] + state.toString();
-			// this is a signal
 		}
 		out += strings[i] + state.toString();
 	}

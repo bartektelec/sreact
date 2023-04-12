@@ -1,6 +1,8 @@
 const signal = <A>(input: A) => {
 	const bind = <T>(obj: T, k: keyof T, fn = (x: typeof prox) => x.value) => {
 		bound.push([obj, k, fn]);
+
+		invalidate();
 	};
 
 	const state = {

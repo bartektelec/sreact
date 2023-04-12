@@ -18,11 +18,14 @@ const hydrate = (model: Record<string, unknown> = {}) => {
 				const key = attr.replace('on:', '').replace('@', '');
 
 				events.push([key, v]);
+
+				element.removeAttribute(attr);
 			}
 			if (attr.startsWith(':')) {
 				const key = attr.slice(1);
 
 				bound.push([key, v]);
+				element.removeAttribute(attr);
 			}
 		}
 

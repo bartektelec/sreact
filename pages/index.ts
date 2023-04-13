@@ -1,5 +1,7 @@
 import { signal, derive } from '../core/signal';
 import { hydrate } from '../core/hydrate';
+import {comp as card} from  '../components/card/component'
+
 
 const secret = 123;
 const count = signal(1);
@@ -57,4 +59,5 @@ hydrate({
 	decCounter,
 	handleType,
 	rand,
+  card
 });

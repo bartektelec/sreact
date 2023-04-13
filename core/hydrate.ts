@@ -11,11 +11,10 @@ const redir = () => {
 	location.replace(path + '/index.html');
 };
 
-const hydrate = (model: Record<string, unknown> = {}) => {
+const hydrate = (model: Record<string, unknown> = {}, root = document.body) => {
 	redir();
 
-	const nodes = [...document.body.children];
-
+  const nodes = [...root.children];
 	for (let i = 0; i < nodes.length; i++) {
 		const element = nodes[i];
 		const events: [string, string][] = [];
@@ -28,6 +27,7 @@ const hydrate = (model: Record<string, unknown> = {}) => {
 		for (let i = 0; i < attrs.length; i++) {
 			const attr = attrs[i];
 			const v = element.getAttribute(attr)!;
+
 
 			if (attr.startsWith('on:') || attr.startsWith('@')) {
 				const key = attr.replace('on:', '').replace('@', '');
@@ -65,10 +65,14 @@ const hydrate = (model: Record<string, unknown> = {}) => {
 		}
 
 		let interpolate = false;
-		let raw = element.textContent ?? '';
+		let raw = element.innerHTML ?? '';
 
 		for (let word of raw.split(' ')) {
-			if (word.startsWith('{{')) interpolate = true;
+
+      console.log('int', interpolate);
+      console.log('w', word);
+
+      if (word.startsWith('{{')) interpolate = true;
 
 			if (interpolate) {
 				const w = word.replace('{{', '').replace('}}', '');
@@ -80,14 +84,36 @@ const hydrate = (model: Record<string, unknown> = {}) => {
 					const after = /\s*\}{2}/;
 					const reg = new RegExp(before.source + w + after.source, 'g');
 
-					s.bind(element, 'textContent', () => raw?.replace(reg, s.toString()));
+          console.log('state')
+					s.bind(element, 'innerHTML', () => raw?.replace(reg, s.toString()));
 				} else {
-					element.textContent = raw?.replace(word, w);
+          console.log('not state')
+					element.innerHTML = raw?.replace(word, w);
 				}
 			}
 
 			if (word.endsWith('}}')) interpolate = false;
 		}
+
+ 
+  for(let i = 0; i < [...root.children].length; i++) {
+    const el = root.children[i];
+    if(el.localName.startsWith('c-')) {
+      
+
+      const comp = el.localName.slice(2);
+
+      if(!model[comp]) continue;
+
+        const x = el.getAttributeNames().map(x => [x, el.getAttribute(x)]);
+
+        const props = Object.fromEntries(x)
+
+        console.log(model[comp](props))
+      el.outerHTML = model[comp](props);
+    }
+  }
+ 
 	}
 };
 

@@ -7,9 +7,10 @@
 		<title>Vite + TS</title>
 	</head>
 	<body>
+    <c-Card :text="count" static="hello"></c-Card>
 		<a href="/about">go to about page</a>
 		<div :id="secret" :data-count="count">count: {{ count }}</div>
-		<div>doubled: {{ doubled }}</div>
+    <div>doubled: {{ doubled }}</div>
 		<div>doubledDoubledText: {{ doubledDoubledText }}</div>
 		<button @click="incCounter" :class="count">inc</button>
 		<button @click="rand">rand</button>

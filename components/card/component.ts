@@ -1,17 +1,14 @@
-import { hydrate} from "../../core/hydrate";
-import html from './component.html?raw';
+import { hydrate } from '../../core/hydrate';
+import template from './component.html?raw';
+import { component } from '../../core/component';
+import { signal } from '../../core/signal';
 
-const comp = (model: Record<string, unknown>) => {
-  const parser = new DOMParser();
-  const parsed = parser.parseFromString(html, 'text/html');
-  const el = parsed.body;
-  const styles = parsed.styleSheets;
+export default component(template, (props) => {
+	const count = signal(props.init ? Number(props.init) : 0);
 
+	const inc = () => {
+		count.value++;
+	};
 
-  hydrate(model, el)
-
-  return el.children[0].outerHTML
-}
-
-export {comp};
-export default html;
+	return { count, inc };
+});

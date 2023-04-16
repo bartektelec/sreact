@@ -1,5 +1,7 @@
-<div> 
-  <h1>I am a card</h1>
-  <p class="card-text">This is a {{ count }}</p>
-</div>
+<div class="card-wrapper">
+	<h1>I am a {{static}}</h1>
 
+	<p class="card-text">This is a {{ count }}</p>
+	<button @click="inc">Increase card counter</button>
+	<p>This is not passed {{ doubled }}</p>
+</div>

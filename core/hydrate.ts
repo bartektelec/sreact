@@ -14,7 +14,8 @@ const redir = () => {
 const hydrate = (model: Record<string, unknown> = {}, root = document.body) => {
 	redir();
 
-  const nodes = [...root.children];
+	console.log('now hydrating', root);
+	const nodes = [...root.children];
 	for (let i = 0; i < nodes.length; i++) {
 		const element = nodes[i];
 		const events: [string, string][] = [];
@@ -23,11 +24,12 @@ const hydrate = (model: Record<string, unknown> = {}, root = document.body) => {
 
 		const attrs = element.getAttributeNames();
 
+		if (element.localName.startsWith('c-')) continue;
+
 		// SECTION iterate through all @ and on: and bind events
 		for (let i = 0; i < attrs.length; i++) {
 			const attr = attrs[i];
 			const v = element.getAttribute(attr)!;
-
 
 			if (attr.startsWith('on:') || attr.startsWith('@')) {
 				const key = attr.replace('on:', '').replace('@', '');
@@ -68,52 +70,67 @@ const hydrate = (model: Record<string, unknown> = {}, root = document.body) => {
 		let raw = element.innerHTML ?? '';
 
 		for (let word of raw.split(' ')) {
-
-      console.log('int', interpolate);
-      console.log('w', word);
-
-      if (word.startsWith('{{')) interpolate = true;
+			if (word.startsWith('{{')) interpolate = true;
 
 			if (interpolate) {
 				const w = word.replace('{{', '').replace('}}', '');
 				if (!w) continue;
 
 				const s = model[w];
-				if (s && 'bind' in s && 'value' in s) {
-					const before = /\{{2}\s*/;
-					const after = /\s*\}{2}/;
-					const reg = new RegExp(before.source + w + after.source, 'g');
+				const before = /\{{2}\s*/;
+				const after = /\s*\}{2}/;
+				const reg = new RegExp(before.source + w + after.source, 'g');
 
-          console.log('state')
+				if (s && typeof s === 'object' && 'bind' in s && 'value' in s) {
 					s.bind(element, 'innerHTML', () => raw?.replace(reg, s.toString()));
 				} else {
-          console.log('not state')
-					element.innerHTML = raw?.replace(word, w);
+					console.log(word);
+					if (s?.toString()) {
+						element.innerHTML = raw?.replace(reg, s.toString());
+					}
 				}
 			}
 
 			if (word.endsWith('}}')) interpolate = false;
 		}
 
- 
-  for(let i = 0; i < [...root.children].length; i++) {
-    const el = root.children[i];
-    if(el.localName.startsWith('c-')) {
-      
+		for (let i = 0; i < [...root.children].length; i++) {
+			const el = root.children[i];
+			if (el.localName.startsWith('c-')) {
+				const comp = el.localName.slice(2);
 
-      const comp = el.localName.slice(2);
+				if (!model[comp]) continue;
 
-      if(!model[comp]) continue;
+				const x = el
+					.getAttributeNames()
+					.map((x) => [x, el.getAttribute(x)])
+					.map(([k, v]) => {
+						let val = v;
+						let key = k;
 
-        const x = el.getAttributeNames().map(x => [x, el.getAttribute(x)]);
+						if (k.startsWith(':') || k.startsWith('@')) {
+							key = k.slice(1);
+							console.log('k', k);
+							console.log('v', v);
+							console.log('m[v]', model[v]);
+							val = model[v];
+						}
 
-        const props = Object.fromEntries(x)
+						return [key, val];
+					});
+				console.log(x);
+				const props = Object.fromEntries(x);
+				console.log(props);
 
-        console.log(model[comp](props))
-      el.outerHTML = model[comp](props);
-    }
-  }
- 
+				console.log(model[comp]);
+
+				const { html, data } = model[comp](props);
+
+				// FIXME this should pass props MAPPED TO MODEL and hydrate
+				el.outerHTML = html;
+				hydrate(data, root.children[i]);
+			}
+		}
 	}
 };
 

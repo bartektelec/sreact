@@ -7,10 +7,11 @@
 		<title>Vite + TS</title>
 	</head>
 	<body>
-    <c-Card :text="count" static="hello"></c-Card>
+		<c-Card init="10" static="hello"></c-Card>
+		<c-Card init="25" static="whatup"></c-Card>
 		<a href="/about">go to about page</a>
 		<div :id="secret" :data-count="count">count: {{ count }}</div>
-    <div>doubled: {{ doubled }}</div>
+		<div>doubled: {{ doubled }}</div>
 		<div>doubledDoubledText: {{ doubledDoubledText }}</div>
 		<button @click="incCounter" :class="count">inc</button>
 		<button @click="rand">rand</button>
@@ -22,4 +23,12 @@
 		<nav>{{ count }}</nav>
 	</body>
 	<script src="./index.ts" defer type="module"></script>
+	<style>
+		.card-wrapper {
+			display: inline-flex;
+			border: 2px solid red;
+			border-radius: 4px;
+			flex-direction: column;
+		}
+	</style>
 </html>

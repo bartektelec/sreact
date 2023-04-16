@@ -1,7 +1,11 @@
 <div class="card-wrapper">
-	<h1>I am a {{static}}</h1>
-
-	<p class="card-text">This is a {{ count }}</p>
-	<button @click="inc">Increase card counter</button>
-	<p>This is not passed {{ doubled }}</p>
+	<p>This component has its own scope.</p>
+	<p>It can change its own state count:: {{ count }}</p>
+	<input type="number" :value="count" @input="change" />
+	<p>It can also take props</p>
+	<p @click="changeProp">
+		and propagate changes from inside out for props: {{ dynprop }}
+	</p>
+	<button @click="changeProp">Click</button>
+	<p>And it won't use states and data that is not in it's context {{ name }}</p>
 </div>

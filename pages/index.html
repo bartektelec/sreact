@@ -7,28 +7,35 @@
 		<title>Vite + TS</title>
 	</head>
 	<body>
-		<c-Card init="10" static="hello"></c-Card>
-		<c-Card init="25" static="whatup"></c-Card>
-		<a href="/about">go to about page</a>
-		<div :id="secret" :data-count="count">count: {{ count }}</div>
-		<div>doubled: {{ doubled }}</div>
-		<div>doubledDoubledText: {{ doubledDoubledText }}</div>
-		<button @click="incCounter" :class="count">inc</button>
-		<button @click="rand">rand</button>
-		<button @click="decCounter">dec</button>
-		<div :style="divStyle">{{ name }}</div>
-		<input type="text" @input="handleType" :value="name" />
-		<input type="number" @input="handleSize" :value="size" />
-		<button @click="reset">reset</button>
-		<nav>{{ count }}</nav>
+		<c-Card :dynprop="count"></c-Card>
+		<c-Card :dynprop="count"></c-Card>
+		<div class="card-wrapper">
+			<h1>This is defined in the main page index.html</h1>
+			<div :id="secret" :data-count="count">count: {{ count }}</div>
+			<div>doubled: {{ doubled }}</div>
+			<div>doubledDoubledText: {{ doubledDoubledText }}</div>
+			<button @click="incCounter" :class="count">inc</button>
+			<button @click="rand">rand</button>
+			<button @click="decCounter">dec</button>
+			<div :style="divStyle">{{ name }}</div>
+			<input type="text" @input="handleType" :value="name" />
+			<input type="number" @input="handleSize" :value="size" />
+			<button @click="reset">reset</button>
+		</div>
 	</body>
 	<script src="./index.ts" defer type="module"></script>
 	<style>
 		.card-wrapper {
+			padding: 0.5rem;
 			display: inline-flex;
 			border: 2px solid red;
 			border-radius: 4px;
 			flex-direction: column;
+		}
+
+		body {
+			display: flex;
+			flex-wrap: wrap;
 		}
 	</style>
 </html>

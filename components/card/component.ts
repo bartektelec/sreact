@@ -1,14 +1,16 @@
-import { hydrate } from '../../core/hydrate';
 import template from './component.html?raw';
 import { component } from '../../core/component';
 import { signal } from '../../core/signal';
 
 export default component(template, (props) => {
-	const count = signal(props.init ? Number(props.init) : 0);
-
-	const inc = () => {
-		count.value++;
+	const count = signal(0);
+	const change = (e) => {
+		count.value = e.target.valueAsNumber;
 	};
 
-	return { count, inc };
+	const changeProp = () => {
+		props.dynprop.value++;
+	};
+
+	return { count, change, changeProp };
 });

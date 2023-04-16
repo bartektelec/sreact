@@ -1,5 +1,9 @@
 // @ts-nocheck just dont
 
+const isSignal = (input: any): input is Signal => {
+	input && typeof input === 'object' && 'bind' in input && 'value' in input;
+};
+
 const signal = <A>(input: A) => {
 	const bind = <T>(obj: T, k: keyof T, fn = (x: typeof prox) => x.value) => {
 		bound.push([obj, k, fn]);
@@ -74,4 +78,4 @@ const derive = <Dep extends Signal | Signal[]>(
 	return state;
 };
 
-export { signal, Signal, derive };
+export { signal, Signal, derive, isSignal };

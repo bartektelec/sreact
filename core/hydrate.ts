@@ -14,13 +14,15 @@ const redir = () => {
 const hydrate = (model: Record<string, unknown> = {}, root = document.body) => {
 	redir();
 
-	console.log('now hydrating', root);
 	const nodes = [...root.children];
 	for (let i = 0; i < nodes.length; i++) {
 		const element = nodes[i];
 		const events: [string, string][] = [];
 		const bound: [string, string][] = [];
 		const texts: [string | { bind: () => {} }][] = [];
+
+		const hasChildren = [...element.children].length;
+		if (hasChildren) hydrate(model, element);
 
 		const attrs = element.getAttributeNames();
 
@@ -118,15 +120,10 @@ const hydrate = (model: Record<string, unknown> = {}, root = document.body) => {
 
 						return [key, val];
 					});
-				console.log(x);
 				const props = Object.fromEntries(x);
-				console.log(props);
-
-				console.log(model[comp]);
 
 				const { html, data } = model[comp](props);
 
-				// FIXME this should pass props MAPPED TO MODEL and hydrate
 				el.outerHTML = html;
 				hydrate(data, root.children[i]);
 			}

@@ -1,4 +1,4 @@
-import { signal, derive } from '../core/signal';
+import { signal, Signal, derive } from '../core/signal';
 import { hydrate } from '../core/hydrate';
 import card from '../components/card/component';
 
@@ -35,6 +35,9 @@ const handleType = (e) => {
 };
 
 const handleSize = (e) => {
+	console.log(e.target.value);
+	console.log('handleSize');
+	console.log(size.value);
 	size.value = e.target.valueAsNumber;
 };
 

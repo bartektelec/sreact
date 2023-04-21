@@ -2,7 +2,6 @@
 <html lang="en">
 	<head>
 		<meta charset="UTF-8" />
-		<link rel="icon" type="image/svg+xml" href="/vite.svg" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>Vite + TS</title>
 	</head>
@@ -17,7 +16,7 @@
 			<button @click="incCounter" :class="count">inc</button>
 			<button @click="rand">rand</button>
 			<button @click="decCounter">dec</button>
-			<div :style="divStyle">{{ name }}</div>
+			<div :style="divStyle">{{ divText }}</div>
 			<input type="text" @input="handleType" :value="name" />
 			<input type="number" @input="handleSize" :value="size" />
 			<button @click="reset">reset</button>

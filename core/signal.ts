@@ -1,81 +1,84 @@
-// @ts-nocheck just dont
+type Signal<A = unknown> = ReturnType<typeof signal<A>>;
 
-const isSignal = (input: any): input is Signal => {
-	input && typeof input === 'object' && 'bind' in input && 'value' in input;
-};
+const isSignal = <A>(input: Signal<A> | A): input is Signal<A> =>
+	input &&
+	typeof input === 'object' &&
+	'subscribe' in input &&
+	'value' in input;
 
 const signal = <A>(input: A) => {
-	const bind = <T>(obj: T, k: keyof T, fn = (x: typeof prox) => x.value) => {
-		bound.push([obj, k, fn]);
+	const subscribe = (fn: Subscriber) => {
+		console.log('subscribe');
+		subscribers.push(fn);
 
-		invalidate();
+		emit();
 	};
 
 	const state = {
 		value: input,
-		toString: () =>
-			prox.value.toString ? prox.value.toString() : JSON.stringify(prox.value),
-		bind,
+		toString: (): string => String(prox.value),
+		subscribe,
 	};
 
-	const bound: [unknown, PropertyKey, () => unknown][] = [];
+	type Subscriber = (v: A) => void;
+
+	const subscribers: Subscriber[] = [];
 
 	const prox = new Proxy(state, {
 		get(target, p) {
-			if (p === 'toString' || p === 'bind') return target[p];
+			if (Object.keys(state).includes(String(p)))
+				return (target as typeof state)[p as keyof typeof state];
 
 			return target.value;
 		},
 		set(t, p, v) {
-			t[p] = v;
+			console.log('set');
+			t[p as keyof typeof t] = v;
 
-			invalidate();
+			emit();
 			return true;
 		},
 	});
 
-	const invalidate = () => {
-		for (let idx = 0; idx < bound.length; idx++) {
+	const emit = () => {
+		console.log('emit');
+		for (let idx = 0; idx < subscribers.length; idx++) {
 			updateIdx(idx);
 		}
 	};
 
 	const updateIdx = (idx: number) => {
-		if (bound.length <= idx) return;
+		if (subscribers.length <= idx) return;
 
-		const [t, k, fn] = bound[idx];
-		if (k in t) {
-			if (t[k] === fn(prox)) return;
+		const fn = subscribers[idx];
 
-			(t as any)[k] = fn(prox);
-		} else if ('setAttribute' in t) {
-			const prev = t.getAttribute(k);
-			if (prev === fn(prox)) return;
-
-			t.setAttribute(k, fn(prox));
-		}
+		fn(prox.value);
 	};
 
 	return prox;
 };
 
-type Signal = ReturnType<typeof signal>;
-
-const derive = <Dep extends Signal | Signal[]>(
-	deps: Dep,
-	fn: (x: Dep) => Signal
+const derive = <T>(
+	deps: Signal | Signal[],
+	fn: (x: unknown | unknown[]) => T
 ) => {
-	const state = signal(null);
+	const state = signal<T | null>(null);
+
+	console.log('############ DERIVED ##########');
+	console.log(deps);
+	console.log(fn);
 
 	if (Array.isArray(deps)) {
 		for (let i = 0; i < deps.length; i++) {
-			deps[i].bind(state, 'value', () => fn(deps.map((s) => s.value)));
+			deps[i].subscribe(() => {
+				state.value = fn(deps.map((d) => d.value));
+			});
 		}
 	} else {
-		deps.bind(state, 'value', () => fn(deps.value));
+		deps.subscribe((d) => (state.value = fn(d)));
 	}
 
 	return state;
 };
 
-export { signal, Signal, derive, isSignal };
+export { signal, type Signal, derive, isSignal };

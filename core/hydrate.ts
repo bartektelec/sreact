@@ -1,4 +1,4 @@
-// @ts-nocheck just dont
+import { isSignal, Signal } from './signal';
 
 const redir = () => {
 	const path = location.pathname;
@@ -11,17 +11,22 @@ const redir = () => {
 	location.replace(path + '/index.html');
 };
 
-const hydrate = (model: Record<string, unknown> = {}, root = document.body) => {
+const hydrate = (
+	model: Record<string, unknown> = {},
+	root: Element = document.body
+) => {
 	redir();
 
-	const nodes = [...root.children];
+	const nodes = Array.from(root.children);
 	for (let i = 0; i < nodes.length; i++) {
 		const element = nodes[i];
-		const events: [string, string][] = [];
-		const bound: [string, string][] = [];
-		const texts: [string | { bind: () => {} }][] = [];
+		const events: [
+			Parameters<Element['addEventListener']>[0],
+			keyof typeof model
+		][] = [];
+		const bound: [string, Signal | string][] = [];
 
-		const hasChildren = [...element.children].length;
+		const hasChildren = Array.from(element.children).length;
 		if (hasChildren) hydrate(model, element);
 
 		const attrs = element.getAttributeNames();
@@ -36,7 +41,7 @@ const hydrate = (model: Record<string, unknown> = {}, root = document.body) => {
 			if (attr.startsWith('on:') || attr.startsWith('@')) {
 				const key = attr.replace('on:', '').replace('@', '');
 
-				events.push([key, v]);
+				events.push([key as keyof ElementEventMap, v]);
 
 				element.removeAttribute(attr);
 			}
@@ -49,22 +54,36 @@ const hydrate = (model: Record<string, unknown> = {}, root = document.body) => {
 		}
 
 		for (let [event, state] of events) {
-			const s = model[state];
+			const s = model[state] as Signal | unknown;
+			const k = `on${event}` as const;
 			// FIXME add typeguard
-			if (s && 'bind' in s && 'value' in s) {
-				s.bind(element, `on${event}`, s);
+			//
+			console.log('IM IN EVENT!!!!!!!!!', state);
+			console.log(k);
+			console.log(s);
+			if (isSignal(s)) {
+				let cb = s.value;
+				console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
+
+				s.subscribe((state) => {
+					cb = state;
+					element[k] = cb;
+				});
 			} else {
-				element[`on${event}`] = s ?? state;
+				element[k] = s;
 			}
 		}
 
 		for (let [att, state] of bound) {
-			const s = model[state];
+			const s = model[state] as Signal | unknown;
 			// FIXME add typeguard
-			if (s && typeof s === 'object' && 'bind' in s && 'value' in s) {
-				s.bind(element, att);
+			if (isSignal(s)) {
+				s.subscribe((_s) => {
+					element.setAttribute(att, _s.toString());
+				});
 			} else {
-				element.setAttribute(att, s ?? state);
+				console.log(s);
+				// element.setAttribute(att, s ?? state);
 			}
 		}
 
@@ -83,10 +102,11 @@ const hydrate = (model: Record<string, unknown> = {}, root = document.body) => {
 				const after = /\s*\}{2}/;
 				const reg = new RegExp(before.source + w + after.source, 'g');
 
-				if (s && typeof s === 'object' && 'bind' in s && 'value' in s) {
-					s.bind(element, 'innerHTML', () => raw?.replace(reg, s.toString()));
+				if (isSignal(s)) {
+					s.subscribe(() => {
+						element.innerHTML = raw?.replace(reg, s.toString());
+					});
 				} else {
-					console.log(word);
 					if (s?.toString()) {
 						element.innerHTML = raw?.replace(reg, s.toString());
 					}
@@ -96,7 +116,7 @@ const hydrate = (model: Record<string, unknown> = {}, root = document.body) => {
 			if (word.endsWith('}}')) interpolate = false;
 		}
 
-		for (let i = 0; i < [...root.children].length; i++) {
+		for (let i = 0; i < Array.from(root.children).length; i++) {
 			const el = root.children[i];
 			if (el.localName.startsWith('c-')) {
 				const comp = el.localName.slice(2);
@@ -112,9 +132,6 @@ const hydrate = (model: Record<string, unknown> = {}, root = document.body) => {
 
 						if (k.startsWith(':') || k.startsWith('@')) {
 							key = k.slice(1);
-							console.log('k', k);
-							console.log('v', v);
-							console.log('m[v]', model[v]);
 							val = model[v];
 						}
 
